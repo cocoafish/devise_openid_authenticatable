@@ -68,7 +68,11 @@ class Devise::Strategies::OpenidAuthenticatable < Devise::Strategies::Authentica
     end
     
     def find_resource
-      mapping.to.find_by_identity_url(provider_response.identity_url)
+      if mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
+        mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
+      else
+        mapping.to.find_by_identity_url(provider_response.identity_url)
+      end
     end
     
     def build_resource
