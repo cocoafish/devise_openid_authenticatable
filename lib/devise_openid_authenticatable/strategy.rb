@@ -3,7 +3,6 @@ require 'rack/openid'
 
 class Devise::Strategies::OpenidAuthenticatable < Devise::Strategies::Authenticatable
   def valid?
-    logger.debug "#{valid_mapping?} #{identity_param?}"
     valid_mapping? && ( provider_response? || identity_param? )
   end
 
@@ -30,7 +29,7 @@ class Devise::Strategies::OpenidAuthenticatable < Devise::Strategies::Authentica
       case provider_response.status
       when :success
         resource = find_resource || build_resource || create_resource
-        logger.debug "SUCCESS"
+
         if resource && validate(resource)
           begin
             update_resource!(resource)
@@ -69,16 +68,16 @@ class Devise::Strategies::OpenidAuthenticatable < Devise::Strategies::Authentica
     end
 
     def identity_param?
-      params[scope].try(:[], 'identity_url').present?
+      params[scope].try(:[], 'identity_url').present? || params[scope].try(:[], 'guid').present?
     end
     
     def find_resource
-      logger.debug('Start')
-      if mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
-        logger.debug('first')
+      if admin = mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
+        if false #admin.identity_url == nil
+          admin.identity_url = provider_response.identity_url
+        end
         mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
       else
-        logger.debug('second')
         mapping.to.find_by_identity_url(provider_response.identity_url)
       end
     end
