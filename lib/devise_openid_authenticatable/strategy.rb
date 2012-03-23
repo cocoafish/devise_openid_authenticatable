@@ -72,13 +72,8 @@ class Devise::Strategies::OpenidAuthenticatable < Devise::Strategies::Authentica
     end
     
     def find_resource
-      if admin = mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
-        if false #admin.identity_url == nil
-          admin.identity_url = provider_response.identity_url
-        end
+      if !provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/','').blank?
         mapping.to.find_by_guid(provider_response.identity_url.gsub('https://my.appcelerator.com/openid/user/',''))
-      else
-        mapping.to.find_by_identity_url(provider_response.identity_url)
       end
     end
     
